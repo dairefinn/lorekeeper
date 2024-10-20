@@ -150,6 +150,15 @@ Route::group(['prefix' => 'data', 'namespace' => 'Data', 'middleware' => 'power:
     Route::get('items/tag/{id}', 'ItemController@getAddItemTag');
     Route::post('items/tag/{id}', 'ItemController@postAddItemTag');
 
+    # RECIPES
+    Route::get('recipes', 'RecipeController@getRecipeIndex');
+    Route::get('recipes/create', 'RecipeController@getCreateRecipe');
+    Route::get('recipes/edit/{id}', 'RecipeController@getEditRecipe');
+    Route::get('recipes/delete/{id}', 'RecipeController@getDeleteRecipe');
+    Route::post('recipes/create', 'RecipeController@postCreateEditRecipe');
+    Route::post('recipes/edit/{id?}', 'RecipeController@postCreateEditRecipe');
+    Route::post('recipes/delete/{id}', 'RecipeController@postDeleteRecipe');
+    
     # SHOPS
     Route::get('shops', 'ShopController@getIndex');
     Route::get('shops/create', 'ShopController@getCreateShop');
@@ -226,6 +235,31 @@ Route::group(['prefix' => 'data', 'namespace' => 'Data', 'middleware' => 'power:
     Route::post('prompts/create', 'PromptController@postCreateEditPrompt');
     Route::post('prompts/edit/{id?}', 'PromptController@postCreateEditPrompt');
     Route::post('prompts/delete/{id}', 'PromptController@postDeletePrompt');
+
+    # ENCOUNTERS
+    Route::get('encounters', 'EncounterController@getEncounterIndex');
+    Route::get('encounters/create', 'EncounterController@getCreateEncounter');
+    Route::get('encounters/edit/{id}', 'EncounterController@getEditEncounter');
+    Route::get('encounters/delete/{id}', 'EncounterController@getDeleteEncounter');
+    Route::post('encounters/create', 'EncounterController@postCreateEditEncounter');
+    Route::post('encounters/edit/{id?}', 'EncounterController@postCreateEditEncounter');
+    Route::post('encounters/delete/{id}', 'EncounterController@postDeleteEncounter');
+
+    Route::get('encounters/edit/{encounter_id}/prompts/create', 'EncounterController@getCreateEditPrompt');
+    Route::get('encounters/edit/{encounter_id}/prompts/edit/{id}', 'EncounterController@getCreateEditPrompt');
+    Route::post('encounters/edit/{encounter_id}/prompts/create', 'EncounterController@postCreateEditPrompt');
+    Route::post('encounters/edit/{encounter_id}/prompts/edit/{id}', 'EncounterController@postCreateEditPrompt');
+
+    # AREAS
+    Route::get('encounters/areas', 'EncounterController@getEncounterAreaIndex');
+    Route::get('encounters/areas/create', 'EncounterController@getCreateEncounterArea');
+    Route::get('encounters/areas/edit/{id}', 'EncounterController@getEditEncounterArea');
+    Route::get('encounters/areas/delete/{id}', 'EncounterController@getDeleteEncounterArea');
+    Route::post('encounters/areas/create', 'EncounterController@postCreateEditEncounterArea');
+    Route::post('encounters/areas/edit/{id?}', 'EncounterController@postCreateEditEncounterArea');
+    Route::post('encounters/areas/delete/{id}', 'EncounterController@postDeleteEncounterArea');
+    Route::get('encounters/areas/roll/{id}', 'EncounterController@getRollArea');
+    Route::post('encounters/areas/restrictions/{id}', 'EncounterController@postRestrictArea');
 });
 
 
@@ -282,7 +316,16 @@ Route::group(['prefix' => 'grants', 'namespace' => 'Users', 'middleware' => 'pow
     Route::get('items', 'GrantController@getItems');
     Route::post('items', 'GrantController@postItems');
 
+    Route::get('exp', 'GrantController@getExp');
+    Route::post('exp', 'GrantController@postExp');
+    
     Route::get('item-search', 'GrantController@getItemSearch');
+
+    Route::get('recipes', 'GrantController@getRecipes');
+    Route::post('recipes', 'GrantController@postRecipes');
+    
+    Route::get('encounter-energy', 'GrantController@getEncounterEnergyGrants');
+    Route::post('encounter-energy', 'GrantController@postEncounterEnergyGrant');
 });
 
 
@@ -437,3 +480,43 @@ Route::group(['prefix' => 'designs', 'middleware' => 'power:manage_characters'],
     Route::post('vote/{id}/{action}', 'DesignController@postVote')->where('action', 'approve|reject');
 });
 Route::get('{type}/{status}', 'DesignController@getDesignIndex')->where('type', 'myo-approvals|design-approvals')->where('status', 'pending|approved|rejected');
+
+# STATS - STATS
+Route::group(['prefix' => 'stats', 'namespace' => 'Stats', 'middleware' => 'power:edit_stats'], function() {
+    // GET
+    Route::get('/', 'StatController@getIndex');
+    Route::get('/create', 'StatController@getCreateStat');
+    Route::get('/edit/{id}', 'StatController@getEditStat');
+    Route::get('/delete/{id}', 'StatController@getDeleteStat');
+    // POST
+    Route::post('/create', 'StatController@postCreateEditStat');
+    Route::post('/edit/{id}', 'StatController@postCreateEditStat');
+    Route::post('/delete/{id}', 'StatController@postDeleteStat');
+
+
+});
+
+# STATS - LEVELS
+Route::group(['prefix' => 'levels', 'namespace' => 'Stats', 'middleware' => 'power:edit_levels'], function() {
+    # USER 
+    // GET
+    Route::get('/user', 'LevelController@getIndex');
+    Route::get('/create', 'LevelController@getCreateLevel');
+    Route::get('/edit/{id}', 'LevelController@getEditLevel');
+    Route::get('/delete/{id}', 'LevelController@getDeleteLevel');
+    // POST
+    Route::post('/create', 'LevelController@postCreateEditLevel');
+    Route::post('/edit/{id}', 'LevelController@postCreateEditLevel');
+    Route::post('/delete/{id}', 'LevelController@postDeleteLevel');    
+    # ---------------------------------------------
+    # CHARACTER
+    // GET
+    Route::get('/character', 'LevelController@getCharaIndex');
+    Route::get('character/create', 'LevelController@getCharaCreateLevel');
+    Route::get('character/edit/{id}', 'LevelController@getCharaEditLevel');
+    Route::get('character/delete/{id}', 'LevelController@getCharaDeleteLevel');
+        // POST
+    Route::post('character/create', 'LevelController@postCharaCreateEditLevel');
+    Route::post('character/edit/{id}', 'LevelController@postCharaCreateEditLevel');
+    Route::post('character/delete/{id}', 'LevelController@postCharaDeleteLevel');    
+});

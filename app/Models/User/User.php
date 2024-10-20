@@ -15,7 +15,11 @@ use App\Models\Rank\RankPower;
 use App\Models\Currency\Currency;
 use App\Models\Currency\CurrencyLog;
 use App\Models\Item\ItemLog;
+use App\Models\Stat\ExpLog;
+use App\Models\Stat\StatTransferLog;
+use App\Models\Level\LevelLog;
 use App\Models\Shop\ShopLog;
+use App\Models\Shop\UserShopLog;
 use App\Models\User\UserCharacterLog;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCharacter;
@@ -24,6 +28,8 @@ use App\Models\Gallery\GallerySubmission;
 use App\Models\Gallery\GalleryCollaborator;
 use App\Models\Gallery\GalleryFavorite;
 use App\Traits\Commenter;
+use App\Models\Recipe\Recipe;
+use App\Models\User\UserRecipeLog;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -102,6 +108,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get user settings.
+     */
+    public function level() 
+    {
+        return $this->hasOne('App\Models\Level\UserLevel');
+    }
+
+    /*
      * Get the user's aliases.
      */
     public function aliases()
@@ -166,6 +180,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the user's items.
+     */
+    public function recipes()
+    {
+        return $this->belongsToMany('App\Models\Recipe\Recipe', 'user_recipes')->withPivot('id');
+    }
+
+    /**
      * Get all of the user's gallery submissions.
      */
     public function gallerySubmissions()
@@ -187,6 +209,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function bookmarks() 
     {
         return $this->hasMany('App\Models\Character\CharacterBookmark')->where('user_id', $this->id);
+    }
+
+    /**
+     * Get the user's rank data.
+     */
+    public function shops()
+    {
+        return $this->hasMany('App\Models\Shop\UserShop', 'user_id');
     }
 
     /**********************************************************************************************
@@ -456,6 +486,58 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the user's exp logs.
+     *
+     * @param  int  $limit
+     * @return \Illuminate\Support\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getExpLogs($limit = 10)
+    {
+        $user = $this;
+        $query = ExpLog::where(function($query) use ($user) {
+            $query->with('sender')->where('sender_type', 'User')->where('sender_id', $user->id)->whereNotIn('log_type', ['Staff Grant', 'Prompt Rewards', 'Claim Rewards']);
+        })->orWhere(function($query) use ($user) {
+            $query->with('recipient')->where('recipient_type', 'User')->where('recipient_id', $user->id)->where('log_type', '!=', 'Staff Removal');
+        })->orderBy('id', 'DESC');
+        if($limit) return $query->take($limit)->get();
+        else return $query->paginate(30);
+    }
+
+    /**
+     * Get the user's stat logs.
+     *
+     * @param  int  $limit
+     * @return \Illuminate\Support\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getStatLogs($limit = 10)
+    {
+        $user = $this;
+        $query = StatTransferLog::where(function($query) use ($user) {
+            $query->with('sender')->where('sender_type', 'User')->where('sender_id', $user->id)->whereNotIn('log_type', ['Staff Grant', 'Prompt Rewards', 'Claim Rewards']);
+        })->orWhere(function($query) use ($user) {
+            $query->with('recipient')->where('recipient_type', 'User')->where('recipient_id', $user->id)->where('log_type', '!=', 'Staff Removal');
+        })->orderBy('id', 'DESC');
+        if($limit) return $query->take($limit)->get();
+        else return $query->paginate(30);
+    }
+
+    /**
+     * Get the user's level logs.
+     *
+     * @param  int  $limit
+     * @return \Illuminate\Support\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getLevelLogs($limit = 10)
+    {
+        $user = $this;
+        $query = LevelLog::where(function($query) use ($user) {
+            $query->with('recipient')->where('leveller_type', 'User')->where('recipient_id', $user->id);
+        })->orderBy('id', 'DESC');
+        if($limit) return $query->take($limit)->get();
+        else return $query->paginate(30);
+    }
+
+    /**
      * Get the user's item logs.
      *
      * @param  int  $limit
@@ -474,6 +556,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the user's recipe logs.
+     *
+     * @param  int  $limit
+     * @return \Illuminate\Support\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getRecipeLogs($limit = 10)
+    {
+        $user = $this;
+        $query = UserRecipeLog::with('recipe')->where(function($query) use ($user) {
+            $query->with('sender')->where('sender_id', $user->id)->whereNotIn('log_type', ['Staff Grant', 'Prompt Rewards', 'Claim Rewards']);
+        })->orWhere(function($query) use ($user) {
+            $query->with('recipient')->where('recipient_id', $user->id)->where('log_type', '!=', 'Staff Removal');
+        })->orderBy('id', 'DESC');
+        if($limit) return $query->take($limit)->get();
+        else return $query->paginate(30);
+    }
+
+    /**
      * Get the user's shop purchase logs.
      *
      * @param  int  $limit
@@ -483,6 +583,20 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $user = $this;
         $query = ShopLog::where('user_id', $this->id)->with('character')->with('shop')->with('item')->with('currency')->orderBy('id', 'DESC');
+        if($limit) return $query->take($limit)->get();
+        else return $query->paginate(30);
+    }
+
+    /**
+     * Get the user's shop purchase logs.
+     *
+     * @param  int  $limit
+     * @return \Illuminate\Support\Collection|\Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getUserShopLogs($limit = 10)
+    {
+        $user = $this;
+        $query = UserShopLog::where('user_id', $this->id)->with('shop')->with('item')->with('currency')->orderBy('id', 'DESC');
         if($limit) return $query->take($limit)->get();
         else return $query->paginate(30);
     }
@@ -565,4 +679,40 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return CharacterBookmark::where('user_id', $this->id)->where('character_id', $character->id)->first();
     }
+
+    /**
+     * Checks if the user has the named recipe
+     *
+     * @return bool
+     */
+    public function hasRecipe($recipe_id)
+    {
+        $recipe = Recipe::find($recipe_id);
+        $user_has = $this->recipes->contains($recipe);
+        $default = !$recipe->needs_unlocking;
+        return $default ? true : $user_has;
+    }
+
+
+    /**
+     * Returned recipes listed that are owned
+     * Reversal simply
+     *
+     * @return object
+     */
+    public function ownedRecipes($ids, $reverse = false)
+    {
+        $recipes = Recipe::find($ids); $recipeCollection = [];
+        foreach($recipes as $recipe)
+        {
+            if($reverse) {
+                if(!$this->recipes->contains($recipe)) $recipeCollection[] = $recipe;
+            }
+            else {
+                if($this->recipes->contains($recipe)) $recipeCollection[] = $recipe;
+            }
+        }
+        return $recipeCollection;
+    }
+
 }

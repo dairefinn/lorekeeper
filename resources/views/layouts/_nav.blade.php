@@ -43,6 +43,12 @@
                             <a class="dropdown-item" href="{{ url('bank') }}">
                                 Bank
                             </a>
+                            <a class="dropdown-item" href="{{ url('level') }}">
+                                Level Area
+                            </a>
+                            <a class="dropdown-item" href="{{ url('encounter-areas') }}">
+                                Encounters
+                            </a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -61,6 +67,9 @@
                             </a>
                             <a class="dropdown-item" href="{{ url('designs') }}">
                                 Design Approvals
+                            </a>
+                            <a class="dropdown-item" href="{{ url('crafting') }}">
+                                Crafting
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url('characters/transfers/incoming') }}">
@@ -111,6 +120,20 @@
                         </a>
                         <a class="dropdown-item" href="{{ url('shops') }}">
                             Shops
+                        </a>
+                        @if(Auth::check())
+                            @if(Auth::user()->shops()->count() && Settings::get('user_shop_limit') == 1)
+                                <a class="dropdown-item" href="{{ url(Auth::user()->shops()->first()->editUrl) }}">
+                                    My Shop
+                                </a>
+                            @else
+                                <a class="dropdown-item" href="{{ url('user-shops') }}">
+                                    My Shops
+                                </a>
+                            @endif
+                        @endif
+                        <a class="dropdown-item" href="{{ url('user-shops/shop-index') }}">
+                            All User Shops
                         </a>
                     </div>
                 </li>

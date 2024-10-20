@@ -28,6 +28,8 @@ use App\Models\Character\Character;
 use App\Models\Character\Sublist;
 
 use App\Http\Controllers\Controller;
+use App\Models\Shop\UserShop;
+
 
 class UserController extends Controller
 {
@@ -228,6 +230,23 @@ class UserController extends Controller
     }
 
     /**
+     * Shows a user's profile.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserLevel($name)
+    {
+        return view('user.level', [
+            'user' => $this->user,
+            'exps' => $this->user->getExpLogs(),
+            'levels' => $this->user->getLevelLogs(),
+            'stats' => $this->user->getStatLogs(),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
+        ]);
+    }
+
+    /**
      * Shows a user's currency logs.
      *
      * @param  string  $name
@@ -260,6 +279,54 @@ class UserController extends Controller
     }
 
     /**
+     * Shows a user's exp logs.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserExpLogs($name)
+    {
+        $user = $this->user;
+        return view('user.exp_logs', [
+            'user' => $this->user,
+            'logs' => $this->user->getExpLogs(0),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
+        ]);
+    }
+
+    /**
+     * Shows a user's level logs.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserLevelLogs($name)
+    {
+        $user = $this->user;
+        return view('user.level_logs', [
+            'user' => $this->user,
+            'logs' => $this->user->getLevelLogs(0),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
+        ]);
+    }
+
+    /**
+     * Shows a user's stat logs.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserStatLogs($name)
+    {
+        $user = $this->user;
+        return view('user.stat_logs', [
+            'user' => $this->user,
+            'logs' => $this->user->getStatLogs(0),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
+        ]);
+    }
+
+    /**
      * Shows a user's character ownership logs.
      *
      * @param  string  $name
@@ -285,6 +352,22 @@ class UserController extends Controller
         return view('user.submission_logs', [
             'user' => $this->user,
             'logs' => $this->user->getSubmissions(Auth::check() ? Auth::user() : null),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
+        ]);
+    }
+
+    /**
+     * Shows a user's recipe logs.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserRecipeLogs($name)
+    {
+        $user = $this->user;
+        return view('user.recipe_logs', [
+            'user' => $this->user,
+            'logs' => $this->user->getRecipeLogs(0),
             'sublists' => Sublist::orderBy('sort', 'DESC')->get()
         ]);
     }
@@ -336,6 +419,23 @@ class UserController extends Controller
             'user' => $this->user,
             'characters' => true,
             'favorites' => $this->user->characters->count() ? GallerySubmission::whereIn('id', $userFavorites)->whereIn('id', GalleryCharacter::whereIn('character_id', $userCharacters)->pluck('gallery_submission_id')->toArray())->visible(Auth::check() ? Auth::user() : null)->accepted()->orderBy('created_at', 'DESC')->paginate(20) : null,
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
+        ]);
+    }
+
+    /**
+     * Shows a user's characters.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserShops($name)
+    {
+        $shops = UserShop::visible()->where('user_id', $this->user->id);
+
+        return view('user.shops', [
+            'user' => $this->user,
+            'shops' => $shops->orderBy('sort', 'DESC')->get(),
             'sublists' => Sublist::orderBy('sort', 'DESC')->get()
         ]);
     }

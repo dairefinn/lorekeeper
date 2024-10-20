@@ -50,6 +50,9 @@ Route::group(['prefix' => 'inventory', 'namespace' => 'Users'], function() {
     Route::get('account-search', 'InventoryController@getAccountSearch');
 
     Route::get('selector', 'InventoryController@getSelector');
+
+    Route::get('quickstock', 'InventoryController@getQuickstock');
+    Route::post('quickstock-items', 'InventoryController@postQuickstock');
 });
 
 Route::group(['prefix' => 'characters', 'namespace' => 'Users'], function() {
@@ -65,6 +68,12 @@ Route::group(['prefix' => 'characters', 'namespace' => 'Users'], function() {
 Route::group(['prefix' => 'bank', 'namespace' => 'Users'], function() {
     Route::get('/', 'BankController@getIndex');
     Route::post('transfer', 'BankController@postTransfer');
+});
+
+Route::group(['prefix' => 'level', 'namespace' => 'Users'], function() {
+    Route::get('/', 'LevelController@getIndex');
+    Route::post('up', 'LevelController@postLevel');
+    Route::post('transfer', 'LevelController@postTransfer');
 });
 
 Route::group(['prefix' => 'trades', 'namespace' => 'Users'], function() {
@@ -83,6 +92,40 @@ Route::group(['prefix' => 'trades', 'namespace' => 'Users'], function() {
     Route::post('{id}/cancel-trade', 'TradeController@postCancelTrade');
 });
 
+Route::group(['prefix' => 'user-shops', 'namespace' => 'Users'], function() {
+    Route::get('/', 'UserShopController@getUserIndex'); 
+    Route::get('create', 'UserShopController@getCreateShop');
+    Route::get('edit/{id}', 'UserShopController@getEditShop');
+    Route::get('delete/{id}', 'UserShopController@getDeleteShop');
+    Route::post('create', 'UserShopController@postCreateEditShop');
+    Route::post('edit/{id?}', 'UserShopController@postCreateEditShop');
+    Route::post('stock/{id}', 'UserShopController@postEditShopStock');
+    Route::post('delete/{id}', 'UserShopController@postDeleteShop');
+    Route::post('sort', 'UserShopController@postSortShop');
+
+    // misc
+    Route::get('/stock-type', 'UserShopController@getShopStockType');
+    Route::get('/history', 'UserShopController@getPurchaseHistory');
+    Route::get('item-search', 'UserShopController@getItemSearch');
+
+    Route::get('sales/{id}', 'UserShopController@getShopHistory');
+
+    Route::post('quickstock/{id}', 'UserShopController@postQuickstockStock');
+});
+
+Route::group(['prefix' => 'user-shops',], function() {
+    Route::get('/shop-index', 'UserShopController@getIndex'); 
+    Route::get('/shop/{id}', 'UserShopController@getShop'); 
+    Route::post('/shop/buy', 'UserShopController@postBuy');
+    Route::get('{id}/{stockId}', 'UserShopController@getShopStock')->where(['id' => '[0-9]+', 'stockId' => '[0-9]+']);
+});
+
+Route::group(['prefix' => 'crafting', 'namespace' => 'Users'], function() {
+    Route::get('/', 'CraftingController@getIndex');
+    Route::get('craft/{id}', 'CraftingController@getCraftRecipe');
+    Route::post('craft/{id}', 'CraftingController@postCraftRecipe');
+});
+
 /**************************************************************************************************
     Characters
 **************************************************************************************************/
@@ -99,6 +142,15 @@ Route::group(['prefix' => 'character', 'namespace' => 'Characters'], function() 
 
     Route::post('{slug}/approval', 'CharacterController@postCharacterApproval');
     Route::get('{slug}/approval', 'CharacterController@getCharacterApproval');
+    Route::get('{slug}/level-area', 'LevelController@getIndex');
+    Route::get('{slug}/stats-area', 'LevelController@getStatsIndex');
+    Route::post('{slug}/level-area/up', 'LevelController@postLevel');
+    Route::post('{slug}/stats-area/{id}', 'LevelController@postStat');
+    Route::post('{slug}/stats-area/admin/{id}', 'LevelController@postAdminStat');
+    Route::post('{slug}/stats-area/edit/{id}', 'LevelController@postEditStat');
+    # EXP
+    Route::post('{slug}/level-area/exp-grant', 'LevelController@postExpGrant');
+    Route::post('{slug}/level-area/stat-grant', 'LevelController@postStatGrant');
 });
 Route::group(['prefix' => 'myo', 'namespace' => 'Characters'], function() {
     Route::get('{id}/profile/edit', 'MyoController@getEditCharacterProfile');
@@ -111,6 +163,13 @@ Route::group(['prefix' => 'myo', 'namespace' => 'Characters'], function() {
     Route::post('{id}/approval', 'MyoController@postCharacterApproval');
     Route::get('{id}/approval', 'MyoController@getCharacterApproval');
 });
+
+Route::group(['prefix' => 'level', 'namespace' => 'Users'], function() {
+    Route::get('/', 'LevelController@getIndex');
+
+});
+
+
 
 /**************************************************************************************************
     Submissions
@@ -180,6 +239,18 @@ Route::group(['prefix' => 'designs', 'namespace' => 'Characters'], function() {
 });
 
 /**************************************************************************************************
+    Encounters
+**************************************************************************************************/
+
+Route::group(['prefix' => 'encounter-areas'], function() {
+    Route::get('/', 'EncounterController@getEncounterAreas');
+
+    Route::get('{id}', 'EncounterController@exploreArea')->where('id', '[0-9]+');
+    Route::post('{id}/act', 'EncounterController@postAct')->where('id', '[0-9]+');
+    Route::post('select-character', 'EncounterController@postSelectCharacter');
+});
+
+/**************************************************************************************************
     Shops
 **************************************************************************************************/
 
@@ -198,3 +269,4 @@ Route::group(['prefix' => 'comments', 'namespace' => 'Comments'], function() {
     Route::post('/{comment}', 'CommentController@reply')->name('comments.reply');
     Route::post('/{id}/feature', 'CommentController@feature')->name('comments.feature');
 });
+

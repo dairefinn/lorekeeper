@@ -94,6 +94,18 @@ return [
                 'name' => 'Item Grants',
                 'url' => 'admin/grants/items'
             ],
+            [
+                'name' => 'EXP Grants',
+                'url' => 'admin/grants/exp'
+            ],
+            [
+                'name' => 'Recipe Grants',
+                'url' => 'admin/grants/recipes'
+            ],
+            [
+                'name' => 'Encounter Energy Grants',
+                'url' => 'admin/grants/encounter-energy'
+            ],
         ]
     ],
     'Masterlist' => [
@@ -125,6 +137,29 @@ return [
             ],
         ]
     ],
+    'Stats' => [
+        'power' => 'edit_stats',
+        'links' => [
+            [
+                'name' => 'Stats',
+                'url' => 'admin/stats'
+            ],
+        ]
+    ],
+    'Levels' => [
+        'power' => 'edit_levels',
+        'links' => [
+            [
+                'name' => 'User Levels',
+                'url' => 'admin/levels/user'
+            ],
+            [
+                'name' => 'Character Levels',
+                'url' => 'admin/levels/character'
+            ],
+        ]
+    ],
+    
     'Data' => [
         'power' => 'edit_data',
         'links' => [
@@ -175,6 +210,18 @@ return [
             [
                 'name' => 'Items',
                 'url' => 'admin/data/items'
+            ],
+            [
+                'name' => 'Recipes',
+                'url' => 'admin/data/recipes'
+            ],
+            [
+                'name' => 'Encounters',
+                'url' => 'admin/data/encounters'
+            ],
+            [
+                'name' => 'Encounter Areas',
+                'url' => 'admin/data/encounters/areas'
             ],
         ]
     ],

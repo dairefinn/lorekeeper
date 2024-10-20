@@ -286,6 +286,7 @@ return [
     ],
     // BOOKMARK_GIFT_WRITING
     39 => [
+        'name' => 'Bookmark Gift Writing',
         'message' => 'A character you have bookmarked (<a href="{character_url}">{character_name}</a>) has had its Gift Writing Allowed status changed. (<a href="{url}">View Bookmarks</a>)',
         'url' => 'account/bookmarks'
     ],
@@ -316,7 +317,12 @@ return [
         'message' => '<a href="{sender_url}">{sender}</a> has made a reply to your comment. <a href="comment/{comment_url}">See Reply.</a>',
         'url' => ''
     ],
-
+    // EXP GRANT
+    245 => [
+        'name' => 'EXP Grant',
+        'message' => 'You have received a staff grant of {quantity} EXP from <a href="{sender_url}">{sender_name}</a>. (<a href="{url}">View Level Area</a>)',
+        'url' => 'level'
+    ],
     // CHARACTER_ITEM_GRANT
     501 => [
         'name' => 'Character Item Grant',
@@ -406,5 +412,19 @@ return [
         'name' => 'Gallery Submission Participant',
         'message' => '<a href="{sender_url}">{sender}</a> has added you as a participant on a gallery submission. (<a href="{url}">View Submission</a>)',
         'url' => 'gallery/view/{submission_id}'
+    ],
+
+    // USER_SHOP_ITEM_SOLD
+    1104 => [
+        'name' => 'Shop Item Sold',
+        'message' => 'You have sold a {item_name} from <a href="{url}">{shop_name}</a> and have been credited {currency_quantity} {currency_name}.',
+        'url' => 'user-shops/shop/{shop_id}'
+    ],
+
+    // RECIPE_GRANT
+    600 => [
+        'name' => 'Recipe Grant',
+        'message' => 'You have received a staff grant of the crafting recipe {recipe_name} from <a href="{sender_url}">{sender_name}</a>. (<a href="{url}">View Unlocked Recipes</a>)',
+        'url' => 'crafting'
     ],
 ];

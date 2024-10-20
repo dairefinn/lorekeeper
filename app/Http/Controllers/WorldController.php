@@ -19,6 +19,12 @@ use App\Models\Prompt\Prompt;
 use App\Models\Shop\Shop;
 use App\Models\Shop\ShopStock;
 use App\Models\User\User;
+use App\Models\Level\Level;
+use App\Models\Level\CharacterLevel;
+use App\Models\Level\UserLevel;
+use App\Models\Stat\Stat;
+
+use App\Models\Recipe\Recipe;
 
 class WorldController extends Controller
 {
@@ -388,6 +394,123 @@ class WorldController extends Controller
         return view('world.prompts', [
             'prompts' => $query->paginate(20)->appends($request->query()),
             'categories' => ['none' => 'Any Category'] + PromptCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray()
+        ]);
+    }
+
+    /**
+     * 
+     *  LEVELS
+     * 
+     */
+    public function getLevels()
+    {
+        return view('world.level_index');
+    }
+
+    public function getLevelTypes($type)
+    {
+        if($type == 'user')
+        {
+            $levels = Level::where('level_type', 'User')->get();
+        }
+        elseif($type == 'character')
+        {
+            $levels = Level::where('level_type', 'Character')->get();
+        }
+        else abort(404);
+
+        return view('world.level_type_index', [
+            'levels' => $levels->paginate(20),
+            'type' => $type
+        ]);
+    }
+
+    public function getSingleLevel($type, $level)
+    {
+        if($type == 'user')
+        {
+            $levels = Level::where('level', $level)->where('level_type', 'User')->first();
+        }
+        elseif($type == 'character')
+        {
+            $levels = Level::where('level', $level)->where('level_type', 'Character')->first();
+        }
+        else abort(404);
+
+        return view('world.level_single', [
+            'level' => $levels,
+            'type' => $type
+        ]);
+    }
+
+    /**
+     * Shows the items page.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getRecipes(Request $request)
+    {
+        $query = Recipe::query();
+        $data = $request->only(['name', 'sort']);
+        if(isset($data['name']))
+            $query->where('name', 'LIKE', '%'.$data['name'].'%');
+
+        if(isset($data['sort']))
+        {
+            switch($data['sort']) {
+                case 'alpha':
+                    $query->sortAlphabetical();
+                    break;
+                case 'alpha-reverse':
+                    $query->sortAlphabetical(true);
+                    break;
+                case 'newest':
+                    $query->sortNewest();
+                    break;
+                case 'oldest':
+                    $query->sortOldest();
+                    break;
+                case 'locked':
+                    $query->sortNeedsUnlocking();
+                    break;
+            }
+        }
+        else $query->sortNewest();
+
+        return view('world.recipes.recipes', [
+            'recipes' => $query->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * STATS
+     */
+    public function getStats()
+    {
+        $stats = Stat::all();
+
+        return view('world.stats', [
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Shows an individual recipe;ss page.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getRecipe($id)
+    {
+        $recipe = Recipe::where('id', $id)->first();
+        if(!$recipe) abort(404);
+
+        return view('world.recipes._recipe_page', [
+            'recipe' => $recipe,
+            'imageUrl' => $recipe->imageUrl,
+            'name' => $recipe->displayName,
+            'description' => $recipe->parsed_description,
         ]);
     }
 }
