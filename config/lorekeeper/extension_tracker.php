@@ -12,7 +12,7 @@ return [
     //     'version' => '1.0.0',
     // ],
 
-    'extension_tracker' => [
+    'randomization_and_rerolling' => [
         'key' => 'randomization_and_rerolling',
         'wiki_key' => 'Randomization_and_Rerolling',
         'creators' => json_encode([
